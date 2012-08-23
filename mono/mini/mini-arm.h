@@ -5,6 +5,12 @@
 #include <mono/utils/mono-context.h>
 #include <glib.h>
 
+#ifdef __native_client_codegen__
+#define kNaClAlignmentARM 32
+#define kNaClAlignmentMaskARM (kNaClAlignmentARM - 1)
+#define kNaClLengthOfCallImm 4
+#endif
+
 #if defined(ARM_FPU_NONE) || (defined(__ARM_EABI__) && !defined(ARM_FPU_VFP))
 #define MONO_ARCH_SOFT_FLOAT 1
 #endif
@@ -83,7 +89,7 @@
 
 #define MONO_ARCH_FRAME_ALIGNMENT 8
 
-/* fixme: align to 16byte instead of 32byte (we align to 32byte to get 
+/* fixme: align to 16byte instead of 32byte (we align to 32byte to get
  * reproduceable results for benchmarks */
 #define MONO_ARCH_CODE_ALIGNMENT 32
 
@@ -102,7 +108,7 @@ typedef enum {
 
 /* keep the size of the structure a multiple of 8 */
 struct MonoLMF {
-	/* 
+	/*
 	 * If the second lowest bit is set to 1, then this is a MonoLMFExt structure, and
 	 * the other fields are not valid.
 	 */
@@ -140,7 +146,10 @@ typedef struct MonoCompileArch {
 #define ARM_FIRST_ARG_REG 0
 #define ARM_LAST_ARG_REG 3
 
-#define MONO_ARCH_USE_SIGACTION 1
+#ifndef __native_client__
+# define MONO_ARCH_USE_SIGACTION 1
+#endif
+
 #define MONO_ARCH_NEED_DIV_CHECK 1
 
 #define MONO_ARCH_HAVE_CREATE_DELEGATE_TRAMPOLINE
@@ -208,4 +217,3 @@ guint8*
 mono_arm_get_thumb_plt_entry (guint8 *code) MONO_INTERNAL;
 
 #endif /* __MONO_MINI_ARM_H__ */
-

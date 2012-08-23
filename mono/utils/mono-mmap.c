@@ -376,7 +376,9 @@ mono_mprotect (void *addr, size_t length, int flags)
 	if (flags & MONO_MMAP_DISCARD) {
 		/* on non-linux the pages are not guaranteed to be zeroed (*bsd, osx at least) */
 #if defined(__linux__) || defined(__native_client__)
+#ifdef HAVE_MADVISE
 		if (madvise (addr, length, MADV_DONTNEED))
+#endif
 			memset (addr, 0, length);
 #else
 		memset (addr, 0, length);

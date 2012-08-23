@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 1988, 1989 Hans-J. Boehm, Alan J. Demers
  * Copyright (c) 1991-1994 by Xerox Corporation.  All rights reserved.
  * Copyright (c) 1996 by Silicon Graphics.  All rights reserved.
@@ -21,7 +21,7 @@
  * case, a few declarations relying on types declared in gc_priv.h will be
  * omitted.
  */
- 
+
 #ifndef GCCONFIG_H
 
 # define GCCONFIG_H
@@ -67,8 +67,12 @@
 /* Determine the machine type: */
 # if defined(__native_client__)
 #    define NACL
-#    define I386
-#    define mach_type_known
+#    if !defined(__portable_native_client__)
+#        define I386
+#        define mach_type_known
+#    else
+         /* Here we will rely upon arch-specific defines. */
+#    endif
 # endif
 # if defined(__arm__) || defined(__thumb__)
 #    define ARM32
@@ -297,7 +301,7 @@
 # if defined(_AMIGA) && !defined(AMIGA)
 #   define AMIGA
 # endif
-# ifdef AMIGA 
+# ifdef AMIGA
 #   define M68K
 #   define mach_type_known
 # endif
@@ -489,11 +493,11 @@
 # endif
 # if defined(__GNU__)
 #   if defined(__i386__)
-/* The Debian Hurd running on generic PC */  
+/* The Debian Hurd running on generic PC */
 #     define  HURD
 #     define  I386
 #     define  mach_type_known
-#    endif 
+#    endif
 # endif
 
 /* Feel free to add more clauses here */
@@ -923,6 +927,30 @@
 #   endif
 # endif
 
+
+# ifdef NACL
+#   define OS_TYPE "NACL"
+#   if defined(__GLIBC__)
+#      define DYNAMIC_LOADING
+#   endif
+#   define DATASTART ((ptr_t)0x10020000)
+    extern int _end[];
+#   define DATAEND (_end)
+#   ifdef STACK_GRAN
+#      undef STACK_GRAN
+#   endif /* STACK_GRAN */
+#   define STACK_GRAN 0x10000
+#   define HEURISTIC1
+#   define USE_MMAP
+#   define USE_MUNMAP
+#   define USE_MMAP_ANON
+#   ifdef USE_MMAP_FIXED
+#	undef USE_MMAP_FIXED
+#   endif
+#   define GETPAGESIZE() 65536
+#   define MAX_NACL_GC_THREADS 1024
+# endif
+
 # ifdef VAX
 #   define MACH_TYPE "VAX"
 #   define ALIGNMENT 4	/* Pointers are longword aligned by 4.2 C compiler */
@@ -1120,7 +1148,7 @@
 #	define OS_TYPE "SEQUENT"
 	extern int etext[];
 #       define DATASTART ((ptr_t)((((word) (etext)) + 0xfff) & ~0xfff))
-#       define STACKBOTTOM ((ptr_t) 0x3ffff000) 
+#       define STACKBOTTOM ((ptr_t) 0x3ffff000)
 #   endif
 #   ifdef BEOS
 #     define OS_TYPE "BEOS"
@@ -1199,28 +1227,6 @@
 #	  define HEAP_START DATAEND
 #	endif /* USE_MMAP */
 #   endif /* DGUX */
-#   ifdef NACL
-#	define OS_TYPE "NACL"
-#       if defined(__GLIBC__)
-#         define DYNAMIC_LOADING
-#       endif
-#       define DATASTART ((ptr_t)0x10020000)
-	extern int _end[];
-#	define DATAEND (_end)
-#	ifdef STACK_GRAN
-#	  undef STACK_GRAN
-#	endif /* STACK_GRAN */
-#	define STACK_GRAN 0x10000
-#	define HEURISTIC1
-#	define USE_MMAP
-#	define USE_MUNMAP
-#	define USE_MMAP_ANON
-#	ifdef USE_MMAP_FIXED
-#	  undef USE_MMAP_FIXED
-#	endif
-#	define GETPAGESIZE() 65536
-#	define MAX_NACL_GC_THREADS 1024
-#   endif
 #   ifdef LINUX
 #	ifndef __GNUC__
 	  /* The Intel compiler doesn't like inline assembly */
@@ -1283,7 +1289,7 @@
 	    /* cache miss stalls for the targetted load instructions.  But it	*/
 	    /* seems to interfere enough with other cache traffic that the net	*/
 	    /* result is worse than prefetchnta.				*/
-#         if 0 
+#         if 0
 	    /* Using prefetches for write seems to have a slight negative	*/
 	    /* impact on performance, at least for a PIII/500.			*/
 #	    define PREFETCH_FOR_WRITE(x) \
@@ -1759,7 +1765,7 @@
 	    /* Requires 16 byte alignment for malloc */
 #         define ALIGNMENT 8
 #       endif
-#       define OS_TYPE "HPUX"	
+#       define OS_TYPE "HPUX"
         extern int __data_start[];
 #       define DATASTART ((ptr_t)(__data_start))
         /* Gustavo Rodriguez-Rivera suggested changing HEURISTIC2	*/
@@ -1914,8 +1920,12 @@
 # endif
 
 # ifdef ARM32
-#   define CPP_WORDSZ 32
+# if defined( NACL )
+#   define MACH_TYPE "NACL"
+# else
 #   define MACH_TYPE "ARM32"
+# endif
+#   define CPP_WORDSZ 32
 #   define ALIGNMENT 4
 #   ifdef NETBSD
 #       define OS_TYPE "NETBSD"
@@ -2022,7 +2032,7 @@
 #      define DYNAMIC_LOADING
 #   endif
 # endif
- 
+
 # ifdef SH4
 #   define MACH_TYPE "SH4"
 #   define OS_TYPE "MSWINCE"
@@ -2165,7 +2175,7 @@
     /* by rld's internal malloc.					*/
 #   define USE_PROC_FOR_LIBRARIES
 #endif
-    
+
 # ifndef STACK_GROWS_UP
 #   define STACK_GROWS_DOWN
 # endif
@@ -2364,7 +2374,7 @@
 
 # if defined(SAVE_CALL_COUNT) && !defined(GC_ADD_CALLER) \
 	     && defined(GC_CAN_SAVE_CALL_STACKS)
-#   define SAVE_CALL_CHAIN 
+#   define SAVE_CALL_CHAIN
 # endif
 # ifdef SAVE_CALL_CHAIN
 #   if defined(SAVE_CALL_NARGS) && defined(CAN_SAVE_CALL_ARGS)
