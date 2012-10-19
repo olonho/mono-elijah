@@ -115,7 +115,7 @@ mono_bitset_test (const MonoBitSet *set, guint32 pos) {
  * @set: bitset ptr
  * @pos: test bit at this pos
  *
- * Return 32/64 bits from the bitset, starting from @pos, which must be 
+ * Return 32/64 bits from the bitset, starting from @pos, which must be
  * divisible with 32/64.
  */
 gsize
@@ -191,7 +191,7 @@ mono_bitset_size (const MonoBitSet *set) {
 	return set->size;
 }
 
-/* 
+/*
  * should test wich version is faster.
  */
 #if 1
@@ -258,7 +258,7 @@ mono_bitset_count (const MonoBitSet *set) {
 #endif
 
 #if 0
-const static int 
+const static int
 bitstart_mask [] = {
 	0xffffffff, 0xfffffffe, 0xfffffffc, 0xfffffff8,
 	0xfffffff0, 0xffffffe0, 0xffffffc0, 0xffffff80,
@@ -285,12 +285,16 @@ my_g_bit_nth_lsf (gsize mask, gint nth_bit)
 	if ((mask == 0) || (nth_bit == BITS_PER_CHUNK))
 		return -1;
 
-#if (defined(__i386__) || defined (__native_client__)) && defined(__GNUC__)
+#if defined(__native_client__) && (defined(__i386__) || defined(__x86_64))
+#define USE_BSFL 1
+#endif
+
+#if (defined(__i386__) && defined(__GNUC__)) || defined(USE_BSFL)
  {
 	 int r;
 	 /* This depends on mask != 0 */
 	 __asm__("bsfl %1,%0\n\t"
-			 : "=r" (r) : "g" (mask)); 
+			 : "=r" (r) : "g" (mask));
 	 return nth_bit + r;
  }
 #elif defined(__x86_64) && defined(__GNUC__)
@@ -315,7 +319,7 @@ static inline gint
 my_g_bit_nth_lsf_nomask (gsize mask)
 {
 	/* Mask is expected to be != 0 */
-#if (defined(__i386__) || defined(__native_client__)) && defined(__GNUC__)
+#if (defined(__i386__) && defined(__GNUC__)) || defined(USE_BSFL)
 	int r;
 
 	__asm__("bsfl %1,%0\n\t"
@@ -455,7 +459,7 @@ mono_bitset_find_last (const MonoBitSet *set, gint pos) {
 
 	if (pos < 0)
 		pos = set->size - 1;
-		
+
 	j = pos / BITS_PER_CHUNK;
 	bit = pos % BITS_PER_CHUNK;
 
@@ -664,10 +668,10 @@ mono_bitset_foreach (MonoBitSet *set, MonoBitSetFunc func, gpointer data)
 #ifdef TEST_BITSET
 
 /*
- * Compile with: 
+ * Compile with:
  * gcc -g -Wall -DTEST_BITSET -o monobitset monobitset.c `pkg-config --cflags --libs glib-2.0`
  */
-int 
+int
 main() {
 	MonoBitSet *set1, *set2, *set3, *set4;
 	int error = 1;
@@ -679,14 +683,14 @@ main() {
 	if (mono_bitset_count (set1) != 0)
 		return error;
 	error++;
-	
+
 	mono_bitset_set (set1, 33);
 	if (mono_bitset_count (set1) != 1)
 		return error;
 	error++;
 
 	/* g_print("should be 33: %d\n", mono_bitset_find_first (set1, 0)); */
-	
+
 	if (mono_bitset_find_first (set1, 0) != 33)
 		return error;
 	error++;
@@ -812,7 +816,7 @@ main() {
 	mono_bitset_free (set4);
 
 	g_print ("total tests passed: %d\n", error - 1);
-	
+
 	return 0;
 }
 

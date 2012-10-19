@@ -19,7 +19,7 @@
 
   Jeroen Frijters
   jeroen@frijters.net
-  
+
 */
 #ifdef _WIN32
 	#include <windows.h>
@@ -95,6 +95,11 @@
 
 	JNIEXPORT int JNICALL ikvm_msync(void* address, jint size)
 	{
+#ifdef USE_NEWLIB
+                g_assert_not_reached ();
+                return -1;
+#else
 		return msync(address, size, MS_SYNC);
+#endif
 	}
 #endif

@@ -83,7 +83,7 @@ static inline gint32 InterlockedCompareExchange(volatile gint32 *dest,
 
 	__asm__ __volatile__ ("lock; cmpxchgl %2, %0"
 			      : "=m" (*dest), "=a" (old)
-			      : "r" (exch), "m" (*dest), "a" (comp));	
+			      : "r" (exch), "m" (*dest), "a" (comp));
 	return(old);
 }
 
@@ -99,7 +99,7 @@ static inline gpointer InterlockedCompareExchangePointer(volatile gpointer *dest
 #endif
 			      " %2, %0"
 			      : "=m" (*dest), "=a" (old)
-			      : "r" (exch), "m" (*dest), "a" (comp));	
+			      : "r" (exch), "m" (*dest), "a" (comp));
 
 	return(old);
 }
@@ -107,7 +107,7 @@ static inline gpointer InterlockedCompareExchangePointer(volatile gpointer *dest
 static inline gint32 InterlockedIncrement(volatile gint32 *val)
 {
 	gint32 tmp;
-	
+
 	__asm__ __volatile__ ("lock; xaddl %0, %1"
 			      : "=r" (tmp), "=m" (*val)
 			      : "0" (1), "m" (*val));
@@ -118,7 +118,7 @@ static inline gint32 InterlockedIncrement(volatile gint32 *val)
 static inline gint32 InterlockedDecrement(volatile gint32 *val)
 {
 	gint32 tmp;
-	
+
 	__asm__ __volatile__ ("lock; xaddl %0, %1"
 			      : "=r" (tmp), "=m" (*val)
 			      : "0" (-1), "m" (*val));
@@ -140,7 +140,7 @@ static inline gint32 InterlockedDecrement(volatile gint32 *val)
 static inline gint32 InterlockedExchange(volatile gint32 *val, gint32 new_val)
 {
 	gint32 ret;
-	
+
 	__asm__ __volatile__ ("1:; lock; cmpxchgl %2, %0; jne 1b"
 			      : "=m" (*val), "=a" (ret)
 			      : "r" (new_val), "m" (*val), "a" (*val));
@@ -152,7 +152,7 @@ static inline gpointer InterlockedExchangePointer(volatile gpointer *val,
 						  gpointer new_val)
 {
 	gpointer ret;
-	
+
 	__asm__ __volatile__ ("1:; lock; "
 #if defined(__x86_64__)  && !defined(__native_client__)
 			      "cmpxchgq"
@@ -169,18 +169,18 @@ static inline gpointer InterlockedExchangePointer(volatile gpointer *val,
 static inline gint32 InterlockedExchangeAdd(volatile gint32 *val, gint32 add)
 {
 	gint32 ret;
-	
+
 	__asm__ __volatile__ ("lock; xaddl %0, %1"
 			      : "=r" (ret), "=m" (*val)
 			      : "0" (add), "m" (*val));
-	
+
 	return(ret);
 }
 
 #elif (defined(sparc) || defined (__sparc__)) && defined(__GNUC__)
 #define WAPI_ATOMIC_ASM
 
-G_GNUC_UNUSED 
+G_GNUC_UNUSED
 static inline gint32 InterlockedCompareExchange(volatile gint32 *_dest, gint32 _exch, gint32 _comp)
 {
        register volatile gint32 *dest asm("g1") = _dest;
@@ -197,7 +197,7 @@ static inline gint32 InterlockedCompareExchange(volatile gint32 *_dest, gint32 _
        return exch;
 }
 
-G_GNUC_UNUSED 
+G_GNUC_UNUSED
 static inline gpointer InterlockedCompareExchangePointer(volatile gpointer *_dest, gpointer _exch, gpointer _comp)
 {
        register volatile gpointer *dest asm("g1") = _dest;
@@ -219,7 +219,7 @@ static inline gpointer InterlockedCompareExchangePointer(volatile gpointer *_des
        return exch;
 }
 
-G_GNUC_UNUSED 
+G_GNUC_UNUSED
 static inline gint32 InterlockedIncrement(volatile gint32 *_dest)
 {
        register volatile gint32 *dest asm("g1") = _dest;
@@ -241,7 +241,7 @@ static inline gint32 InterlockedIncrement(volatile gint32 *_dest)
         return ret;
 }
 
-G_GNUC_UNUSED 
+G_GNUC_UNUSED
 static inline gint32 InterlockedDecrement(volatile gint32 *_dest)
 {
        register volatile gint32 *dest asm("g1") = _dest;
@@ -342,7 +342,7 @@ static inline gint32 InterlockedExchangeAdd(volatile gint32 *_dest, gint32 add)
 
 #define WAPI_ATOMIC_ASM
 
-static inline gint32 
+static inline gint32
 InterlockedCompareExchange(volatile gint32 *dest,
 			   gint32 exch, gint32 comp)
 {
@@ -353,7 +353,7 @@ InterlockedCompareExchange(volatile gint32 *dest,
 			      "\tCS\t%1,%2,0(1)\n"
 			      : "+m" (*dest), "=&r" (old)
 			      : "r" (exch), "r" (comp)
-			      : "1", "cc");	
+			      : "1", "cc");
 	return(old);
 }
 
@@ -369,13 +369,13 @@ InterlockedCompareExchangePointer(volatile gpointer *dest,
 			      "\tCS\t%1,%2,0(1)\n"
 			      : "+m" (*dest), "=&r" (old)
 			      : "r" (exch), "r" (comp)
-			      : "1", "cc");	
+			      : "1", "cc");
 	return(old);
 }
 # else
-static inline gpointer 
-InterlockedCompareExchangePointer(volatile gpointer *dest, 
-				  gpointer exch, 
+static inline gpointer
+InterlockedCompareExchangePointer(volatile gpointer *dest,
+				  gpointer exch,
 			          gpointer comp)
 {
 	gpointer old;
@@ -392,11 +392,11 @@ InterlockedCompareExchangePointer(volatile gpointer *dest,
 # endif
 
 # ifndef __s390x__
-static inline gint32 
+static inline gint32
 InterlockedIncrement(volatile gint32 *val)
 {
 	gint32 tmp;
-	
+
 	__asm__ __volatile__ ("\tLA\t2,%1\n"
 			      "0:\tL\t%0,%1\n"
 			      "\tLR\t1,%0\n"
@@ -410,11 +410,11 @@ InterlockedIncrement(volatile gint32 *val)
 	return(tmp);
 }
 # else
-static inline gint32 
+static inline gint32
 InterlockedIncrement(volatile gint32 *val)
 {
 	gint32 tmp;
-	
+
 	__asm__ __volatile__ ("\tLA\t2,%1\n"
 			      "0:\tLGF\t%0,%1\n"
 			      "\tLGFR\t1,%0\n"
@@ -430,11 +430,11 @@ InterlockedIncrement(volatile gint32 *val)
 # endif
 
 # ifndef __s390x__
-static inline gint32 
+static inline gint32
 InterlockedDecrement(volatile gint32 *val)
 {
 	gint32 tmp;
-	
+
 	__asm__ __volatile__ ("\tLA\t2,%1\n"
 			      "0:\tL\t%0,%1\n"
 			      "\tLR\t1,%0\n"
@@ -448,11 +448,11 @@ InterlockedDecrement(volatile gint32 *val)
 	return(tmp);
 }
 # else
-static inline gint32 
+static inline gint32
 InterlockedDecrement(volatile gint32 *val)
 {
 	gint32 tmp;
-	
+
 	__asm__ __volatile__ ("\tLA\t2,%1\n"
 			      "0:\tLGF\t%0,%1\n"
 			      "\tLGFR\t1,%0\n"
@@ -467,11 +467,11 @@ InterlockedDecrement(volatile gint32 *val)
 }
 # endif
 
-static inline gint32 
+static inline gint32
 InterlockedExchange(volatile gint32 *val, gint32 new_val)
 {
 	gint32 ret;
-	
+
 	__asm__ __volatile__ ("\tLA\t1,%0\n"
 			      "0:\tL\t%1,%0\n"
 			      "\tCS\t%1,%2,0(1)\n"
@@ -484,11 +484,11 @@ InterlockedExchange(volatile gint32 *val, gint32 new_val)
 }
 
 # ifndef __s390x__
-static inline gpointer 
+static inline gpointer
 InterlockedExchangePointer(volatile gpointer *val, gpointer new_val)
 {
 	gpointer ret;
-	
+
 	__asm__ __volatile__ ("\tLA\t1,%0\n"
 			      "0:\tL\t%1,%0\n"
 			      "\tCS\t%1,%2,0(1)\n"
@@ -504,7 +504,7 @@ static inline gpointer
 InterlockedExchangePointer(volatile gpointer *val, gpointer new_val)
 {
 	gpointer ret;
-	
+
 	__asm__ __volatile__ ("\tLA\t1,%0\n"
 			      "0:\tLG\t%1,%0\n"
 			      "\tCSG\t%1,%2,0(1)\n"
@@ -518,7 +518,7 @@ InterlockedExchangePointer(volatile gpointer *val, gpointer new_val)
 # endif
 
 # ifndef __s390x__
-static inline gint32 
+static inline gint32
 InterlockedExchangeAdd(volatile gint32 *val, gint32 add)
 {
 	gint32 ret;
@@ -530,13 +530,13 @@ InterlockedExchangeAdd(volatile gint32 *val, gint32 add)
 			      "\tCS\t%0,1,0(2)\n"
 			      "\tJNZ\t0b"
 			      : "=&r" (ret), "+m" (*val)
-			      : "r" (add) 
+			      : "r" (add)
 			      : "1", "2", "cc");
-	
+
 	return(ret);
 }
 # else
-static inline gint32 
+static inline gint32
 InterlockedExchangeAdd(volatile gint32 *val, gint32 add)
 {
 	gint32 ret;
@@ -548,9 +548,9 @@ InterlockedExchangeAdd(volatile gint32 *val, gint32 add)
 			      "\tCS\t%0,1,0(2)\n"
 			      "\tJNZ\t0b"
 			      : "=&r" (ret), "+m" (*val)
-			      : "r" (add) 
+			      : "r" (add)
 			      : "1", "2", "cc");
-	
+
 	return(ret);
 }
 # endif
@@ -573,7 +573,7 @@ static inline gint32 InterlockedIncrement(volatile register gint32 *val)
 			stwcx.	result, 0, val
 			bne-	@1
 	}
- 
+
 	return result;
 }
 
@@ -672,7 +672,7 @@ static inline gpointer InterlockedCompareExchangePointer (volatile gpointer *des
 
 	__asm__ __volatile__ ("\n1:\n\t"
 			     LDREGX " %0, 0, %1\n\t"
-			     CMPREG " %0, %2\n\t" 
+			     CMPREG " %0, %2\n\t"
 			     "bne-    2f\n\t"
 			     STREGCXD " %3, 0, %1\n\t"
 			     "bne-    1b\n"
@@ -688,7 +688,7 @@ static inline gint32 InterlockedCompareExchange(volatile gint32 *dest,
 
 	__asm__ __volatile__ ("\n1:\n\t"
 			     "lwarx   %0, 0, %1\n\t"
-			     "cmpw    %0, %2\n\t" 
+			     "cmpw    %0, %2\n\t"
 			     "bne-    2f\n\t"
 			     "stwcx.  %3, 0, %1\n\t"
 			     "bne-    1b\n"
@@ -742,6 +742,15 @@ static inline gint32 InterlockedExchangeAdd(volatile gint32 *dest, gint32 add)
 #endif /* !G_COMPILER_CODEWARRIOR */
 
 #elif defined(__arm__)
+
+#ifdef __native_client__
+#define MASK_REGISTER(reg, cond) "bic" cond " " reg ", " reg ", #0xc0000000\n"
+#define NACL_ALIGN() ".align 4\n"
+#else
+#define MASK_REGISTER(reg, cond)
+#define NACL_ALIGN()
+#endif
+
 #define WAPI_ATOMIC_ASM
 
 static inline gint32 InterlockedCompareExchange(volatile gint32 *dest, gint32 exch, gint32 comp)
@@ -749,10 +758,15 @@ static inline gint32 InterlockedCompareExchange(volatile gint32 *dest, gint32 ex
 #if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7__)
 	gint32 ret, tmp;
 	__asm__ __volatile__ (	"1:\n"
+                                NACL_ALIGN()
 				"mov	%0, #0\n"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%2", "al")
 				"ldrex %1, [%2]\n"
 				"teq	%1, %3\n"
 				"it eq\n"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%2", "eq")
 				"strexeq %0, %4, [%2]\n"
 				"teq %0, #0\n"
 				"bne 1b\n"
@@ -765,12 +779,18 @@ static inline gint32 InterlockedCompareExchange(volatile gint32 *dest, gint32 ex
 	gint32 a, b;
 
 	__asm__ __volatile__ (    "0:\n\t"
+                                  NACL_ALIGN()
+                                  MASK_REGISTER("%2", "al")
 				  "ldr %1, [%2]\n\t"
 				  "cmp %1, %4\n\t"
 				  "mov %0, %1\n\t"
 				  "bne 1f\n\t"
+                                  NACL_ALIGN()
+                                  MASK_REGISTER("%2", "al")
 				  "swp %0, %3, [%2]\n\t"
 				  "cmp %0, %1\n\t"
+                                  NACL_ALIGN()
+                                  MASK_REGISTER("%2", "ne")
 				  "swpne %3, %0, [%2]\n\t"
 				  "bne 0b\n\t"
 				  "1:"
@@ -787,10 +807,15 @@ static inline gpointer InterlockedCompareExchangePointer(volatile gpointer *dest
 #if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7__)
 	gpointer ret, tmp;
 	__asm__ __volatile__ (	"1:\n"
+                                NACL_ALIGN()
 				"mov	%0, #0\n"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%2", "al")
 				"ldrex %1, [%2]\n"
 				"teq	%1, %3\n"
 				"it eq\n"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%2", "eq")
 				"strexeq %0, %4, [%2]\n"
 				"teq %0, #0\n"
 				"bne 1b\n"
@@ -803,12 +828,18 @@ static inline gpointer InterlockedCompareExchangePointer(volatile gpointer *dest
 	gpointer a, b;
 
 	__asm__ __volatile__ (    "0:\n\t"
+                                  NACL_ALIGN()
+                                  MASK_REGISTER("%2", "al")
 				  "ldr %1, [%2]\n\t"
 				  "cmp %1, %4\n\t"
 				  "mov %0, %1\n\t"
 				  "bne 1f\n\t"
+                                  NACL_ALIGN()
+                                  MASK_REGISTER("%2", "eq")
 				  "swpeq %0, %3, [%2]\n\t"
 				  "cmp %0, %1\n\t"
+                                  NACL_ALIGN()
+                                  MASK_REGISTER("%2", "ne")
 				  "swpne %3, %0, [%2]\n\t"
 				  "bne 0b\n\t"
 				  "1:"
@@ -825,8 +856,12 @@ static inline gint32 InterlockedIncrement(volatile gint32 *dest)
 #if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7__)
 	gint32 ret, flag;
 	__asm__ __volatile__ (	"1:\n"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%2", "al")
 				"ldrex %0, [%2]\n"
 				"add %0, %0, %3\n"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%2", "al")
 				"strex %1, %0, [%2]\n"
 				"teq %1, #0\n"
 				"bne 1b\n"
@@ -839,10 +874,16 @@ static inline gint32 InterlockedIncrement(volatile gint32 *dest)
 	gint32 a, b, c;
 
 	__asm__ __volatile__ (  "0:\n\t"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "al")
 				"ldr %0, [%3]\n\t"
 				"add %1, %0, %4\n\t"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "al")
 				"swp %2, %1, [%3]\n\t"
 				"cmp %0, %2\n\t"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "ne")
 				"swpne %1, %2, [%3]\n\t"
 				"bne 0b"
 				: "=&r" (a), "=&r" (b), "=&r" (c)
@@ -858,8 +899,12 @@ static inline gint32 InterlockedDecrement(volatile gint32 *dest)
 #if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7__)
 	gint32 ret, flag;
 	__asm__ __volatile__ (	"1:\n"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%2", "al")
 				"ldrex %0, [%2]\n"
 				"sub %0, %0, %3\n"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%2", "al")
 				"strex %1, %0, [%2]\n"
 				"teq %1, #0\n"
 				"bne 1b\n"
@@ -872,10 +917,16 @@ static inline gint32 InterlockedDecrement(volatile gint32 *dest)
 	gint32 a, b, c;
 
 	__asm__ __volatile__ (  "0:\n\t"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "al")
 				"ldr %0, [%3]\n\t"
 				"add %1, %0, %4\n\t"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "al")
 				"swp %2, %1, [%3]\n\t"
 				"cmp %0, %2\n\t"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "ne")
 				"swpne %1, %2, [%3]\n\t"
 				"bne 0b"
 				: "=&r" (a), "=&r" (b), "=&r" (c)
@@ -892,7 +943,11 @@ static inline gint32 InterlockedExchange(volatile gint32 *dest, gint32 exch)
 	gint32 ret, flag;
 	__asm__ __volatile__ (
 			      "1:\n"
+                              NACL_ALIGN()
+                              MASK_REGISTER("%3", "al")
 			      "ldrex %0, [%3]\n"
+                              NACL_ALIGN()
+                              MASK_REGISTER("%3", "al")
 			      "strex %1, %2, [%3]\n"
 			      "teq %1, #0\n"
 			      "bne 1b\n"
@@ -903,7 +958,9 @@ static inline gint32 InterlockedExchange(volatile gint32 *dest, gint32 exch)
 #else
 	gint32 a;
 
-	__asm__ __volatile__ (  "swp %0, %2, [%1]"
+	__asm__ __volatile__ (  NACL_ALIGN()
+                                MASK_REGISTER("%1", "al")
+                                "swp %0, %2, [%1]"
 				: "=&r" (a)
 				: "r" (dest), "r" (exch));
 
@@ -917,7 +974,11 @@ static inline gpointer InterlockedExchangePointer(volatile gpointer *dest, gpoin
 	gpointer ret, flag;
 	__asm__ __volatile__ (
 			      "1:\n"
+                              NACL_ALIGN()
+                              MASK_REGISTER("%3", "al")
 			      "ldrex %0, [%3]\n"
+                              NACL_ALIGN()
+                              MASK_REGISTER("%3", "al")
 			      "strex %1, %2, [%3]\n"
 			      "teq %1, #0\n"
 			      "bne 1b\n"
@@ -928,7 +989,9 @@ static inline gpointer InterlockedExchangePointer(volatile gpointer *dest, gpoin
 #else
 	gpointer a;
 
-	__asm__ __volatile__ (	"swp %0, %2, [%1]"
+	__asm__ __volatile__ (	NACL_ALIGN()
+                                MASK_REGISTER("%1", "al")
+                                "swp %0, %2, [%1]"
 				: "=&r" (a)
 				: "r" (dest), "r" (exch));
 
@@ -941,8 +1004,12 @@ static inline gint32 InterlockedExchangeAdd(volatile gint32 *dest, gint32 add)
 #if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7__)
 	gint32 ret, tmp, flag;
 	__asm__ __volatile__ (	"1:\n"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "al")
 				"ldrex %0, [%3]\n"
 				"add %1, %0, %4\n"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "al")
 				"strex %2, %1, [%3]\n"
 				"teq %2, #0\n"
 				"bne 1b\n"
@@ -955,10 +1022,16 @@ static inline gint32 InterlockedExchangeAdd(volatile gint32 *dest, gint32 add)
 	int a, b, c;
 
 	__asm__ __volatile__ (  "0:\n\t"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "al")
 				"ldr %0, [%3]\n\t"
 				"add %1, %0, %4\n\t"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "al")
 				"swp %2, %1, [%3]\n\t"
 				"cmp %0, %2\n\t"
+                                NACL_ALIGN()
+                                MASK_REGISTER("%3", "ne")
 				"swpne %1, %2, [%3]\n\t"
 				"bne 0b"
 				: "=&r" (a), "=&r" (b), "=&r" (c)
@@ -1126,7 +1199,7 @@ static inline gpointer InterlockedCompareExchangePointer(volatile gpointer *dest
 static inline gint32 InterlockedIncrement(volatile gint32 *val)
 {
 	gint32 temp, cur;
-	
+
 	__asm__ __volatile__ (
 		"1:	ldl_l %0, %1\n"
 		"	addl %0, %3, %0\n"
@@ -1141,7 +1214,7 @@ static inline gint32 InterlockedIncrement(volatile gint32 *val)
 static inline gint32 InterlockedDecrement(volatile gint32 *val)
 {
 	gint32 temp, cur;
-	
+
 	__asm__ __volatile__ (
 		"1:	ldl_l %0, %1\n"
 		"	subl %0, %3, %0\n"
@@ -1184,7 +1257,7 @@ static inline gpointer InterlockedExchangePointer(volatile gpointer *val, gpoint
 static inline gint32 InterlockedExchangeAdd(volatile gint32 *val, gint32 add)
 {
 	gint32 ret, temp;
-	
+
 	__asm__ __volatile__ (
 		"1:	ldl_l	%2, %0\n"
 		"	mov	%2, %1\n"
@@ -1193,7 +1266,7 @@ static inline gint32 InterlockedExchangeAdd(volatile gint32 *val, gint32 add)
 		"	beq	%2, 1b\n"
 		: "=m" (*val), "=&r" (ret), "=&r" (temp)
 		: "r" (add), "m" (*val));
-	
+
 	return(ret);
 }
 

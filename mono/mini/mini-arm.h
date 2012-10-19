@@ -6,7 +6,7 @@
 #include <glib.h>
 
 #ifdef __native_client_codegen__
-#define kNaClAlignmentARM 32
+#define kNaClAlignmentARM 16
 #define kNaClAlignmentMaskARM (kNaClAlignmentARM - 1)
 #define kNaClLengthOfCallImm 4
 #endif
@@ -146,8 +146,10 @@ typedef struct MonoCompileArch {
 #define ARM_FIRST_ARG_REG 0
 #define ARM_LAST_ARG_REG 3
 
-#ifndef __native_client__
 # define MONO_ARCH_USE_SIGACTION 1
+
+#if defined(__native_client__)
+#undef MONO_ARCH_USE_SIGACTION
 #endif
 
 #define MONO_ARCH_NEED_DIV_CHECK 1
@@ -172,14 +174,21 @@ typedef struct MonoCompileArch {
 #define MONO_ARCH_DYN_CALL_SUPPORTED 1
 #define MONO_ARCH_DYN_CALL_PARAM_AREA 24
 
+
 #define MONO_ARCH_SOFT_DEBUG_SUPPORTED 1
-#define MONO_ARCH_HAVE_EXCEPTIONS_INIT 1
+#define MONO_ARCH_HAVE_SIGCTX_TO_MONOCTX 1
 #define MONO_ARCH_HAVE_GET_TRAMPOLINES 1
 #define MONO_ARCH_HAVE_CONTEXT_SET_INT_REG 1
-#define MONO_ARCH_HAVE_SIGCTX_TO_MONOCTX 1
+#define MONO_ARCH_HAVE_EXCEPTIONS_INIT 1
+
+#if defined(__native_client__)
+#undef MONO_ARCH_SOFT_DEBUG_SUPPORTED
+#undef MONO_ARCH_HAVE_SIGCTX_TO_MONOCTX
+#undef MONO_ARCH_HAVE_CONTEXT_SET_INT_REG
+#endif
 
 /* Matches the HAVE_AEABI_READ_TP define in mini-arm.c */
-#if defined(__ARM_EABI__) && defined(__linux__) && !defined(TARGET_ANDROID)
+#if defined(__ARM_EABI__) && defined(__linux__) && !defined(TARGET_ANDROID) && defined(__native_client__)
 #define MONO_ARCH_HAVE_TLS_GET 1
 #endif
 

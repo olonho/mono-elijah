@@ -533,6 +533,15 @@ static void pthread_stop_world()
 	__asm__ __volatile__ ("add $16, %esp");\
     } while (0)
 
+#elif __arm__
+
+#define NACL_STORE_REGS()  \
+  memset(nacl_gc_thread_self->stop_info.reg_storage, 0xba, NACL_GC_REG_STORAGE_SIZE * sizeof(ptr_t));
+
+#else
+
+#error "Please port NACL_STORE_REGS"
+
 #endif
 
 void nacl_pre_syscall_hook()
