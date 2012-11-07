@@ -43,7 +43,7 @@ mono_sigctx_to_monoctx (void *sigctx, MonoContext *mctx)
 	mctx->eip = 0xDEADBEEF;
 #elif defined(MONO_SIGNAL_USE_SIGACTION)
 	ucontext_t *ctx = (ucontext_t*)sigctx;
-
+	
 	mctx->eax = UCONTEXT_REG_EAX (ctx);
 	mctx->ebx = UCONTEXT_REG_EBX (ctx);
 	mctx->ecx = UCONTEXT_REG_ECX (ctx);
@@ -53,7 +53,7 @@ mono_sigctx_to_monoctx (void *sigctx, MonoContext *mctx)
 	mctx->esi = UCONTEXT_REG_ESI (ctx);
 	mctx->edi = UCONTEXT_REG_EDI (ctx);
 	mctx->eip = UCONTEXT_REG_EIP (ctx);
-#else
+#else	
 	struct sigcontext *ctx = (struct sigcontext *)sigctx;
 
 	mctx->eax = ctx->SC_EAX;
@@ -251,8 +251,6 @@ mono_sigctx_to_monoctx (void *sigctx, MonoContext *mctx)
 {
 #ifdef MONO_CROSS_COMPILE
 	g_assert_not_reached ();
-#elif defined(__native_client__)
-        g_assert_not_reached ();
 #elif BROKEN_LINUX
 	g_assert_not_reached ();
 #else
@@ -269,8 +267,6 @@ mono_monoctx_to_sigctx (MonoContext *mctx, void *ctx)
 {
 #ifdef MONO_CROSS_COMPILE
 	g_assert_not_reached ();
-#elif defined(__native_client__)
-        g_assert_not_reached ();
 #else
 	arm_ucontext *my_uc = ctx;
 

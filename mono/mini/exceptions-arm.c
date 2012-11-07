@@ -52,7 +52,7 @@ mono_arch_get_restore_context (MonoTrampInfo **info, gboolean aot)
 
 	start = code = mono_global_codeman_reserve (128);
 
-	/*
+	/* 
 	 * Move things to their proper place so we can restore all the registers with
 	 * one instruction.
 	 */
@@ -87,7 +87,7 @@ mono_arch_get_restore_context (MonoTrampInfo **info, gboolean aot)
  * arch_get_call_filter:
  *
  * Returns a pointer to a method which calls an exception filter. We
- * also use this function to call finally handlers (we pass NULL as
+ * also use this function to call finally handlers (we pass NULL as 
  * @exc object in this case).
  */
 gpointer
@@ -189,13 +189,13 @@ mono_arm_resume_unwind (guint32 dummy1, unsigned long eip, unsigned long esp, gu
 /**
  * get_throw_trampoline:
  *
- * Returns a function pointer which can be used to raise
- * exceptions. The returned function has the following
+ * Returns a function pointer which can be used to raise 
+ * exceptions. The returned function has the following 
  * signature: void (*func) (MonoException *exc); or
  * void (*func) (guint32 ex_token, guint8* ip);
  *
  */
-static gpointer
+static gpointer 
 get_throw_trampoline (int size, gboolean corlib, gboolean rethrow, gboolean llvm, gboolean resume_unwind, const char *tramp_name, MonoTrampInfo **info, gboolean aot)
 {
 	guint8 *start;
@@ -269,16 +269,16 @@ get_throw_trampoline (int size, gboolean corlib, gboolean rethrow, gboolean llvm
 /**
  * arch_get_throw_exception:
  *
- * Returns a function pointer which can be used to raise
- * exceptions. The returned function has the following
- * signature: void (*func) (MonoException *exc);
+ * Returns a function pointer which can be used to raise 
+ * exceptions. The returned function has the following 
+ * signature: void (*func) (MonoException *exc); 
  * For example to raise an arithmetic exception you can use:
  *
- * x86_push_imm (code, mono_get_exception_arithmetic ());
- * x86_call_code (code, arch_get_throw_exception ());
+ * x86_push_imm (code, mono_get_exception_arithmetic ()); 
+ * x86_call_code (code, arch_get_throw_exception ()); 
  *
  */
-gpointer
+gpointer 
 mono_arch_get_throw_exception (MonoTrampInfo **info, gboolean aot)
 {
 	return get_throw_trampoline (132, FALSE, FALSE, FALSE, FALSE, "throw_exception", info, aot);
@@ -287,9 +287,9 @@ mono_arch_get_throw_exception (MonoTrampInfo **info, gboolean aot)
 /**
  * mono_arch_get_rethrow_exception:
  *
- * Returns a function pointer which can be used to rethrow
- * exceptions. The returned function has the following
- * signature: void (*func) (MonoException *exc);
+ * Returns a function pointer which can be used to rethrow 
+ * exceptions. The returned function has the following 
+ * signature: void (*func) (MonoException *exc); 
  *
  */
 gpointer
@@ -301,19 +301,19 @@ mono_arch_get_rethrow_exception (MonoTrampInfo **info, gboolean aot)
 /**
  * mono_arch_get_throw_corlib_exception:
  *
- * Returns a function pointer which can be used to raise
- * corlib exceptions. The returned function has the following
- * signature: void (*func) (guint32 ex_token, guint32 offset);
- * Here, offset is the offset which needs to be substracted from the caller IP
- * to get the IP of the throw. Passing the offset has the advantage that it
+ * Returns a function pointer which can be used to raise 
+ * corlib exceptions. The returned function has the following 
+ * signature: void (*func) (guint32 ex_token, guint32 offset); 
+ * Here, offset is the offset which needs to be substracted from the caller IP 
+ * to get the IP of the throw. Passing the offset has the advantage that it 
  * needs no relocations in the caller.
  * On ARM, the ip is passed instead of an offset.
  */
-gpointer
+gpointer 
 mono_arch_get_throw_corlib_exception (MonoTrampInfo **info, gboolean aot)
 {
 	return get_throw_trampoline (168, TRUE, FALSE, FALSE, FALSE, "throw_corlib_exception", info, aot);
-}
+}	
 
 GSList*
 mono_arm_get_exception_trampolines (gboolean aot)
@@ -324,7 +324,7 @@ mono_arm_get_exception_trampolines (gboolean aot)
 	/* LLVM uses the normal trampolines, but with a different name */
 	get_throw_trampoline (168, TRUE, FALSE, FALSE, FALSE, "llvm_throw_corlib_exception_trampoline", &info, aot);
 	tramps = g_slist_prepend (tramps, info);
-
+	
 	get_throw_trampoline (168, TRUE, FALSE, TRUE, FALSE, "llvm_throw_corlib_exception_abs_trampoline", &info, aot);
 	tramps = g_slist_prepend (tramps, info);
 
@@ -339,7 +339,7 @@ mono_arch_exceptions_init (void)
 {
 	guint8 *tramp;
 	GSList *tramps, *l;
-
+	
 	if (mono_aot_only) {
 		tramp = mono_aot_get_trampoline ("llvm_throw_corlib_exception_trampoline");
 		mono_register_jit_icall (tramp, "llvm_throw_corlib_exception_trampoline", NULL, TRUE);
@@ -360,14 +360,14 @@ mono_arch_exceptions_init (void)
 	}
 }
 
-/*
+/* 
  * mono_arch_find_jit_info:
  *
  * See exceptions-amd64.c for docs;
  */
 gboolean
-mono_arch_find_jit_info (MonoDomain *domain, MonoJitTlsData *jit_tls,
-							 MonoJitInfo *ji, MonoContext *ctx,
+mono_arch_find_jit_info (MonoDomain *domain, MonoJitTlsData *jit_tls, 
+							 MonoJitInfo *ji, MonoContext *ctx, 
 							 MonoContext *new_ctx, MonoLMF **lmf,
 							 mgreg_t **save_locations,
 							 StackFrameInfo *frame)
@@ -397,7 +397,7 @@ mono_arch_find_jit_info (MonoDomain *domain, MonoJitTlsData *jit_tls,
 			regs [i] = new_ctx->regs [i];
 		regs [ARMREG_SP] = new_ctx->esp;
 
-		mono_unwind_frame (unwind_info, unwind_info_len, ji->code_start,
+		mono_unwind_frame (unwind_info, unwind_info_len, ji->code_start, 
 						   (guint8*)ji->code_start + ji->code_size,
 						   ip, regs, MONO_MAX_IREGS,
 						   save_locations, MONO_MAX_IREGS, &cfa);
@@ -422,7 +422,7 @@ mono_arch_find_jit_info (MonoDomain *domain, MonoJitTlsData *jit_tls,
 	} else if (*lmf) {
 
 		if (((gsize)(*lmf)->previous_lmf) & 2) {
-			/*
+			/* 
 			 * This LMF entry is created by the soft debug code to mark transitions to
 			 * managed code done during invokes.
 			 */
@@ -440,7 +440,7 @@ mono_arch_find_jit_info (MonoDomain *domain, MonoJitTlsData *jit_tls,
 		}
 
 		frame->type = FRAME_TYPE_MANAGED_TO_NATIVE;
-
+		
 		if ((ji = mini_jit_info_table_find (domain, (gpointer)(*lmf)->eip, NULL))) {
 			frame->ji = ji;
 		} else {
@@ -475,7 +475,6 @@ mono_arch_find_jit_info (MonoDomain *domain, MonoJitTlsData *jit_tls,
 	return FALSE;
 }
 
-#if MONO_ARCH_HAVE_SIGCTX_TO_MONOCTX
 void
 mono_arch_sigctx_to_monoctx (void *sigctx, MonoContext *mctx)
 {
@@ -508,7 +507,6 @@ mono_arch_monoctx_to_sigctx (MonoContext *mctx, void *ctx)
 	memcpy (&UCONTEXT_REG_R0 (my_uc), &mctx->regs, sizeof (mgreg_t) * 12);
 #endif
 }
-#endif /* MONO_ARCH_HAVE_SIGCTX_TO_MONOCTX */
 
 /*
  * handle_exception:
@@ -551,7 +549,7 @@ get_handle_signal_exception_addr (void)
 gboolean
 mono_arch_handle_exception (void *ctx, gpointer obj, gboolean test_only)
 {
-#if defined(MONO_CROSS_COMPILE) || !defined(MONO_ARCH_HAVE_SIGCTX_TO_MONOCTX)
+#if defined(MONO_CROSS_COMPILE)
 	g_assert_not_reached ();
 #elif defined(MONO_ARCH_USE_SIGACTION)
 	arm_ucontext *sigctx = ctx;
@@ -592,7 +590,7 @@ mono_arch_handle_exception (void *ctx, gpointer obj, gboolean test_only)
 
 	result = mono_handle_exception (&mctx, obj, (gpointer)mctx.eip, test_only);
 	/* restore the context so that returning from the signal handler will invoke
-	 * the catch clause
+	 * the catch clause 
 	 */
 	mono_arch_monoctx_to_sigctx (&mctx, ctx);
 	return result;
@@ -605,8 +603,6 @@ mono_arch_ip_from_context (void *sigctx)
 #ifdef MONO_CROSS_COMPILE
 	g_assert_not_reached ();
 #elif BROKEN_LINUX
-	g_assert_not_reached ();
-#elif defined(__native_client__)
 	g_assert_not_reached ();
 #else
 	arm_ucontext *my_uc = sigctx;

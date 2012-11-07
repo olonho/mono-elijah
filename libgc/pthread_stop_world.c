@@ -105,7 +105,7 @@ word GC_stop_count;	/* Incremented at the beginning of GC_stop_world. */
 
 /*
  * We use signals to stop threads during GC.
- *
+ * 
  * Suspended threads wait in signal handler for SIG_THR_RESTART.
  * That's more portable than semaphores or condition variables.
  * (We do use sem_post from a signal handler, but that should be portable.)
@@ -190,7 +190,7 @@ static void _GC_suspend_handler(int sig)
     /* between the sem_post and sigsuspend.	   			    */
     /* We'd need more handshaking to work around that, since we don't want  */
     /* to accidentally leave a RESTART signal pending, thus causing us to   */
-    /* continue prematurely in a future round.				    */
+    /* continue prematurely in a future round.				    */ 
 
     /* Tell the thread that wants to start the world that this  */
     /* thread has been started.  Note that sem_post() is  	*/
@@ -256,7 +256,7 @@ static void pthread_push_all_stacks()
     /* On IA64, we also need to scan the register backing store. */
     IF_IA64(ptr_t bs_lo; ptr_t bs_hi;)
     pthread_t me = pthread_self();
-
+    
     if (!GC_thr_initialized) GC_thr_init();
     #if DEBUG_THREADS
         GC_printf1("Pushing stacks from thread 0x%lx\n", (unsigned long) me);
@@ -365,7 +365,7 @@ int GC_suspend_all()
     GC_thread p;
     int result;
     pthread_t my_thread = pthread_self();
-
+    
     GC_stopping_thread = my_thread;    /* debugging only.      */
     GC_stopping_pid = getpid();                /* debugging only.      */
     for (i = 0; i < THREAD_TABLE_SZ; i++) {
@@ -468,7 +468,7 @@ static void pthread_stop_world()
     #endif
     nacl_thread_parker = pthread_self();
     __nacl_thread_suspension_needed = 1;
-
+    
     while (1) {
 	#define NACL_PARK_WAIT_NANOSECONDS 100000
         #define NANOS_PER_SECOND 1000000000
@@ -533,15 +533,6 @@ static void pthread_stop_world()
 	__asm__ __volatile__ ("add $16, %esp");\
     } while (0)
 
-#elif __arm__
-
-#define NACL_STORE_REGS()  \
-  memset(nacl_gc_thread_self->stop_info.reg_storage, 0xba, NACL_GC_REG_STORAGE_SIZE * sizeof(ptr_t));
-
-#else
-
-#error "Please port NACL_STORE_REGS"
-
 #endif
 
 void nacl_pre_syscall_hook()
@@ -553,8 +544,6 @@ void nacl_pre_syscall_hook()
         nacl_thread_parked[nacl_thread_idx] = 1;
     }
 }
-
-void __nacl_suspend_thread_if_needed();
 
 void nacl_post_syscall_hook()
 {
@@ -683,7 +672,7 @@ static void pthread_start_world()
 	    }
 	}
     }
-
+  
     if (GC_notify_event)
         GC_notify_event (GC_EVENT_POST_START_WORLD);
     #if DEBUG_THREADS
@@ -714,7 +703,7 @@ void GC_start_world()
 static void pthread_stop_init() {
 #ifndef NACL
     struct sigaction act;
-
+    
     if (sem_init(&GC_suspend_ack_sem, 0, 0) != 0)
         ABORT("sem_init failed");
 

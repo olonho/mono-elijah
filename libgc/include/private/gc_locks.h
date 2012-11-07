@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright 1988, 1989 Hans-J. Boehm, Alan J. Demers
  * Copyright (c) 1991-1994 by Xerox Corporation.  All rights reserved.
  * Copyright (c) 1996-1999 by Silicon Graphics.  All rights reserved.
@@ -40,8 +40,8 @@
  *   				      GC_word old, GC_word new )
  *   GC_word GC_atomic_add( volatile GC_word *addr, GC_word how_much )
  *   void GC_memory_barrier( )
- *
- */
+ *   
+ */  
 # ifdef THREADS
    void GC_noop1 GC_PROTO((word));
 #  ifdef PCR_OBSOLETE	/* Faster, but broken with multiple lwp's	*/
@@ -49,7 +49,7 @@
 #    include  "th/PCR_ThCrSec.h"
      extern struct PCR_Th_MLRep GC_allocate_ml;
 #    define DCL_LOCK_STATE  PCR_sigset_t GC_old_sig_mask
-#    define LOCK() PCR_Th_ML_Acquire(&GC_allocate_ml)
+#    define LOCK() PCR_Th_ML_Acquire(&GC_allocate_ml) 
 #    define UNLOCK() PCR_Th_ML_Release(&GC_allocate_ml)
 #    define UNLOCK() PCR_Th_ML_Release(&GC_allocate_ml)
 #    define FASTLOCK() PCR_ThCrSec_EnterSys()
@@ -185,7 +185,7 @@
       }
 #     define GC_CLEAR_DEFINED
 #    endif
-#    if defined(ALPHA)
+#    if defined(ALPHA) 
         inline static int GC_test_and_set(volatile unsigned int * addr)
         {
           unsigned long oldvalue;
@@ -223,21 +223,13 @@
 #       define GC_CLEAR_DEFINED
 #    endif /* ALPHA */
 #    ifdef ARM32
-#ifdef __native_client__
-#define MASK_REGISTER(reg) "bic " reg ", " reg ", #0xc0000000\n"
-#else
-#define MASK_REGISTER(reg)
-#endif
         inline static int GC_test_and_set(volatile unsigned int *addr) {
 #if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7__)
           int ret, tmp;
           __asm__ __volatile__ (
                                  "1:\n"
-                                 ".align 4\n"
-                                 MASK_REGISTER("%3")
                                  "ldrex %0, [%3]\n"
-                                 MASK_REGISTER("%3")
-                                 "strex %1, %2, [%3]\n"
+                                 "strex %1, %2, [%3]\n" 
                                  "teq %1, #0\n"
                                  "bne 1b\n"
                                  : "=&r" (ret), "=&r" (tmp)
@@ -250,8 +242,7 @@
            * bus because there are no SMP ARM machines.  If/when there are,
            * this code will likely need to be updated. */
           /* See linuxthreads/sysdeps/arm/pt-machine.h in glibc-2.1 */
-          __asm__ __volatile__(MASK_REGISTER("%2")
-                               "swp %0, %1, [%2]"
+          __asm__ __volatile__("swp %0, %1, [%2]"
       		  	     : "=&r"(oldval)
       			     : "r"(1), "r"(addr)
 			     : "memory");
@@ -345,8 +336,8 @@
 #  endif /* MIPS */
 #  if defined(_AIX)
 #    include <sys/atomic_op.h>
-#    if (defined(_POWER) || defined(_POWERPC))
-#      if defined(__GNUC__)
+#    if (defined(_POWER) || defined(_POWERPC)) 
+#      if defined(__GNUC__)  
          inline static void GC_memsync() {
            __asm__ __volatile__ ("sync" : : : "memory");
          }
@@ -358,7 +349,7 @@
            "7c0004ac" /* sync (same opcode used for dcs)*/ \
          }
 #      endif
-#    else
+#    else 
 #    error dont know how to memsync
 #    endif
      inline static int GC_test_and_set(volatile unsigned int * addr) {
@@ -412,7 +403,7 @@
       && !defined(GC_WIN32_THREADS)
 #    define NO_THREAD (pthread_t)(-1)
 #    include <pthread.h>
-#    if defined(PARALLEL_MARK)
+#    if defined(PARALLEL_MARK) 
       /* We need compare-and-swap to update mark bits, where it's	*/
       /* performance critical.  If USE_MARK_BYTES is defined, it is	*/
       /* no longer needed for this purpose.  However we use it in	*/
@@ -436,7 +427,7 @@
          /* Returns TRUE if the comparison succeeded. */
          inline static GC_bool GC_compare_and_exchange(volatile GC_word *addr,
 		  				       GC_word old,
-						       GC_word new_val)
+						       GC_word new_val) 
          {
 	   char result;
 	   __asm__ __volatile__("lock; cmpxchgl %2, %0; setz %1"
@@ -459,7 +450,7 @@
          /* Returns TRUE if the comparison succeeded. */
          inline static GC_bool GC_compare_and_exchange(volatile GC_word *addr,
 		  				       GC_word old,
-						       GC_word new_val)
+						       GC_word new_val) 
          {
 	   char result;
 	   __asm__ __volatile__("lock; cmpxchgq %2, %0; setz %1"
@@ -482,7 +473,7 @@
 #       if CPP_WORDSZ == 64
         /* Returns TRUE if the comparison succeeded. */
         inline static GC_bool GC_compare_and_exchange(volatile GC_word *addr,
-            GC_word old, GC_word new_val)
+            GC_word old, GC_word new_val) 
         {
             unsigned long result, dummy;
             __asm__ __volatile__(
@@ -504,7 +495,7 @@
 #       else
         /* Returns TRUE if the comparison succeeded. */
         inline static GC_bool GC_compare_and_exchange(volatile GC_word *addr,
-            GC_word old, GC_word new_val)
+            GC_word old, GC_word new_val) 
         {
             int result, dummy;
             __asm__ __volatile__(
@@ -579,7 +570,7 @@
 #     if defined(IA64)
 #      if !defined(GENERIC_COMPARE_AND_SWAP)
          inline static GC_bool GC_compare_and_exchange(volatile GC_word *addr,
-						       GC_word old, GC_word new_val)
+						       GC_word old, GC_word new_val) 
 	 {
 	  unsigned long oldval;
 #	  if CPP_WORDSZ == 32
@@ -609,7 +600,7 @@
 #      if !defined(GENERIC_COMPARE_AND_SWAP)
 #        if defined(__GNUC__)
            inline static GC_bool GC_compare_and_exchange(volatile GC_word *addr,
-						         GC_word old, GC_word new_val)
+						         GC_word old, GC_word new_val) 
 	   {
 	     unsigned long was_equal;
              unsigned long temp;
@@ -630,7 +621,7 @@
            }
 #        else /* !__GNUC__ */
            inline static GC_bool GC_compare_and_exchange(volatile GC_word *addr,
-						         GC_word old, GC_word new_val)
+						         GC_word old, GC_word new_val) 
 	  {
 	    return __CMP_STORE_QUAD(addr, old, new_val, addr);
           }
