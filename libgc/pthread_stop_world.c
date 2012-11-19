@@ -536,10 +536,10 @@ static void pthread_stop_world()
 #elif __arm__
 
 #define NACL_STORE_REGS()  \
-      do {                  \
+    do {                  \
 	__asm__ __volatile__ ("push {r4-r12,lr}");\
 	__asm__ __volatile__ ("mov r0, %0" : : "r" (&nacl_gc_thread_self->stop_info.stack_ptr)); \
-        __asm__ __volatile__ ("bic r0, r0, #0xc0000000");\
+	__asm__ __volatile__ ("bic r0, r0, #0xc0000000");\
 	__asm__ __volatile__ ("str sp, [r0]");\
 	memcpy(nacl_gc_thread_self->stop_info.reg_storage, nacl_gc_thread_self->stop_info.stack_ptr, NACL_GC_REG_STORAGE_SIZE * sizeof(ptr_t));\
 	__asm__ __volatile__ ("add sp, sp, #40");\

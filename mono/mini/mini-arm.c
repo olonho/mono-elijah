@@ -208,6 +208,7 @@ mono_arch_fregname (int reg)
 	return "unknown";
 }
 
+
 #ifndef DISABLE_JIT
 static guint8*
 emit_big_add (guint8 *code, int dreg, int sreg, int imm)
@@ -679,7 +680,7 @@ mono_arch_init (void)
 		breakpoint_func_wrapper = create_function_wrapper (debugger_agent_breakpoint_from_context);
 	} else {
 #else
-        {
+	{
 #endif
 		ss_trigger_page = mono_valloc (NULL, mono_pagesize (), MONO_MMAP_READ|MONO_MMAP_32BIT);
 		bp_trigger_page = mono_valloc (NULL, mono_pagesize (), MONO_MMAP_READ|MONO_MMAP_32BIT);

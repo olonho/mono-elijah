@@ -224,8 +224,10 @@
 #    endif /* ALPHA */
 #    ifdef ARM32
 #ifdef __native_client__
+#define NACL_ALIGN() ".align 4\n"
 #define MASK_REGISTER(reg) "bic " reg ", " reg ", #0xc0000000\n"
 #else
+#define NACL_ALIGN()
 #define MASK_REGISTER(reg)
 #endif
         inline static int GC_test_and_set(volatile unsigned int *addr) {
@@ -233,9 +235,7 @@
           int ret, tmp;
           __asm__ __volatile__ (
                                  "1:\n"
-#if defined(__native_client__)
-                                 ".align 4\n"
-#endif
+                                 NACL_ALIGN()
                                  MASK_REGISTER("%3")
                                  "ldrex %0, [%3]\n"
                                  MASK_REGISTER("%3")

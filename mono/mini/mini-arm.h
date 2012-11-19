@@ -187,7 +187,7 @@ typedef struct MonoCompileArch {
 #endif
 
 /* Matches the HAVE_AEABI_READ_TP define in mini-arm.c */
-#if defined(__ARM_EABI__) && defined(__linux__) && !defined(TARGET_ANDROID) && defined(__native_client__)
+#if defined(__ARM_EABI__) && defined(__linux__) && !defined(TARGET_ANDROID) && !defined(__native_client__)
 #define MONO_ARCH_HAVE_TLS_GET 1
 #endif
 
