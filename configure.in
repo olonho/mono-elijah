@@ -2578,11 +2578,7 @@ if test "x$host" != "x$target"; then
 		AC_DEFINE(__mono_ilp32__, 1, [64 bit mode with 4 byte longs and pointers])
 		sizeof_register=8
 		;;
-<<<<<<< HEAD
-# TODO(olonho): make proper support for NaCl target.
-=======
 # TODO: make proper support for NaCl target.
->>>>>>> upstream/master
 #   arm*-*nacl)
 #		TARGET=ARM
 #		arch_target=arm
