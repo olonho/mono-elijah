@@ -13,6 +13,7 @@
 
 #include "mono-codeman.h"
 #include "mono-mmap.h"
+#include "mono-counters.h"
 #include "dlmalloc.h"
 #include <mono/metadata/class-internals.h>
 #include <mono/metadata/profiler-private.h>
@@ -23,7 +24,10 @@
 #if defined(__native_client_codegen__) && defined(__native_client__)
 #include <malloc.h>
 #include <nacl/nacl_dyncode.h>
+#include <mono/metadata/gc-internal.h>
 #endif
+
+static uintptr_t code_memory_used = 0;
 
 /*
  * AMD64 processors maintain icache coherency only for pages which are 
@@ -288,6 +292,7 @@ free_chunklist (CodeChunk *chunk)
 		} else if (dead->flags == CODE_FLAG_MALLOC) {
 			dlfree (dead->data);
 		}
+		code_memory_used -= dead->size;
 		free (dead);
 	}
 }
@@ -455,6 +460,8 @@ new_codechunk (int dynamic, int size)
 	chunk->bsize = bsize;
 	mono_profiler_code_chunk_new((gpointer) chunk->data, chunk->size);
 
+	code_memory_used += chunk_size;
+	mono_runtime_resource_check_limit (MONO_RESOURCE_JIT_CODE, code_memory_used);
 	/*printf ("code chunk at: %p\n", ptr);*/
 	return chunk;
 }
