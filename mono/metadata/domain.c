@@ -676,6 +676,15 @@ mono_jit_info_table_add (MonoDomain *domain, MonoJitInfo *ji)
 
 	table = domain->jit_info_table;
 
+#ifdef USE_JUMP_TABLES
+        if (ji->jumptable == NULL) {
+            guint32 size = 4;
+            ji->jumptable = g_new0 (gpointer, size);
+            ji->jumptable[0] = (gpointer)(2);
+            ji->jumptable[1] = (gpointer)(size);
+        }
+#endif
+
  restart:
 	chunk_pos = jit_info_table_index (table, (gint8*)ji->code_start + ji->code_size);
 	g_assert (chunk_pos < table->num_chunks);
@@ -946,6 +955,41 @@ mono_jit_info_get_generic_jit_info (MonoJitInfo *ji)
 	else
 		return NULL;
 }
+
+#ifdef USE_JUMP_TABLES
+/* TODO: locking! */
+guint32
+mono_jit_info_add_jumptable_entry (MonoJitInfo *ji, guint8 *code)
+{
+        guint32 index;
+	/* 0-th element of jumptable is used as counter of current elements count. */
+	/* 1-st element of jumptable is used as current lenth of jumptable . */
+        if (ji->jumptable == NULL) {
+		guint32 size = 4;
+		ji->jumptable = g_new0 (gpointer, size);
+		ji->jumptable[0] = GUINT_TO_POINTER (2);
+		ji->jumptable[1] = GUINT_TO_POINTER (size);
+        }
+        index = GPOINTER_TO_UINT (ji->jumptable[0]);
+	if (index + 1 >= GPOINTER_TO_UINT (ji->jumptable[1])) {
+		/* Grow jumptable. */
+		guint32 new_length = GPOINTER_TO_UINT (ji->jumptable[1]) + 8;
+		gpointer *new_jumptable = g_new0 (gpointer, new_length);
+		memcpy(new_jumptable, ji->jumptable, index * sizeof (gpointer));
+		ji->jumptable[1] = GUINT_TO_POINTER (new_length);
+	}
+	ji->jumptable[0] = GUINT_TO_POINTER (index + 1);
+	return index;
+}
+
+
+gpointer*
+mono_jit_info_get_jumptable_entry_by_index (MonoJitInfo *ji, guint32 index)
+{
+	g_assert (index > 1 && ji->jumptable);
+	return &ji->jumptable[index];
+}
+#endif
 
 /*
  * mono_jit_info_get_generic_sharing_context:

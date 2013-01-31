@@ -7074,3 +7074,12 @@ mono_cfg_set_exception (MonoCompile *cfg, int type)
 }
 
 #endif
+
+#ifdef USE_JUMP_TABLES
+gpointer*
+mono_jit_info_get_jumptable_entry (MonoJitInfo *ji, guint8 *code_ptr)
+{
+	guint32 index = mono_arch_jumptable_index_from_code (code_ptr);
+	return mono_jit_info_get_jumptable_entry_by_index (ji, index);
+}
+#endif

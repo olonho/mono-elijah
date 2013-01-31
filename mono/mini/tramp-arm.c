@@ -24,6 +24,26 @@
 
 static guint8* nullified_class_init_trampoline;
 
+
+#ifdef USE_JUMP_TABLES
+guint32
+mono_arch_jumptable_index_from_code (guint8* code)
+{
+	/* TODO: actual implementation shall decode jumptable index by decoding
+	   imm from ldr reg, [rJumpBase, #imm] instruction. */
+	return 2;
+}
+
+void
+mono_arch_patch_callsite (guint8 *method_start, guint8 *code_ptr, guint8 *addr)
+{
+	MonoJitInfo *ji = mono_jit_info_table_find (mono_get_root_domain (), (char*) code_ptr);
+	g_assert ( ji != NULL);
+	gpointer *jte = mono_jit_info_get_jumptable_entry (ji, code_ptr);
+	g_assert ( jte != NULL);
+	*jte = addr;
+}
+#else
 void
 mono_arch_patch_callsite (guint8 *method_start, guint8 *code_ptr, guint8 *addr)
 {
@@ -51,6 +71,7 @@ mono_arch_patch_callsite (guint8 *method_start, guint8 *code_ptr, guint8 *addr)
 
 	g_assert_not_reached ();
 }
+#endif
 
 void
 mono_arch_patch_plt_entry (guint8 *code, gpointer *got, mgreg_t *regs, guint8 *addr)

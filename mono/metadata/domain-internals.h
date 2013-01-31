@@ -203,6 +203,10 @@ struct _MonoJitInfo {
 	gboolean    dbg_hidden_inited:1;
 	gboolean    dbg_hidden:1;
 
+
+#ifdef USE_JUMP_TABLES
+	gpointer*   jumptable;
+#endif
 	/* FIXME: Embed this after the structure later*/
 	gpointer    gc_info; /* Currently only used by SGen */
 	
@@ -441,6 +445,15 @@ mono_jit_info_get_generic_sharing_context (MonoJitInfo *ji) MONO_INTERNAL;
 
 void
 mono_jit_info_set_generic_sharing_context (MonoJitInfo *ji, MonoGenericSharingContext *gsctx) MONO_INTERNAL;
+
+#ifdef USE_JUMP_TABLES
+guint32
+mono_jit_info_add_jumptable_entry (MonoJitInfo *ji, guint8 *code_ptr) MONO_INTERNAL;
+gpointer*
+mono_jit_info_get_jumptable_entry (MonoJitInfo *ji, guint8 *code_ptr) MONO_INTERNAL;
+gpointer*
+mono_jit_info_get_jumptable_entry_by_index (MonoJitInfo *ji, guint32 index) MONO_INTERNAL;
+#endif
 
 MonoJitInfo*
 mono_domain_lookup_shared_generic (MonoDomain *domain, MonoMethod *method) MONO_INTERNAL;
